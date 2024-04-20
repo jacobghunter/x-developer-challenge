@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'backend/x_api.dart';
-import 'frontend/x_map.dart' as map;
+// import 'frontend/x_map.dart' as map;
+import 'frontend/x_map_new.dart' as map;
+
 
 void main() {
   // getTweetByLocation('15');
