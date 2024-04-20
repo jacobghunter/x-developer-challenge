@@ -3,7 +3,7 @@ import 'backend/x_api.dart';
 import 'frontend/x_map.dart';
 
 void main() {
-  // getTweetByLocation('15');
+  getTweetByLocation('15');
   runApp(const MyMap());
 }
 

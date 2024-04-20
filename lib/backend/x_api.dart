@@ -10,21 +10,28 @@ final client = TwitterApi(
   //     accessToken: 'VTNnTkM2WDNsdzE5MGVjLWQzVmM6MTpjaQ',
   //     accessTokenSecret: 'TX0FwcajMXsGy4v7RXKDyybiTZGBO0XcItypfEjzfUjb8P7Nun',
   //   ),
-  retryConfig: RetryConfig(
-      maxAttempts: 5,
-      onExecute: (event) => print(
-        'Retry after ${event.intervalInSeconds} seconds... '
-        '[${event.retryCount} times]',
-      ),
-    ),
+  // retryConfig: RetryConfig(
+  //     maxAttempts: 5,
+  //     onExecute: (event) => print(
+  //       'Retry after ${event.intervalInSeconds} seconds... '
+  //       '[${event.retryCount} times]',
+  //     ),
+  //   ),
 
-    //! The default timeout is 10 seconds.
-    timeout: const Duration(seconds: 20),);
+  //   //! The default timeout is 10 seconds.
+  //   timeout: const Duration(seconds: 20)
+    );
 
 
 // Future<TwitterResponse<List<TweetData>, TweetMeta>>
 Future<Null> getTweetByLocation(String location) async {
-  await client.tweets.searchRecent(query: 'from:suhemparack -is:retweet', tweetFields: [TweetField.contextAnnotations, TweetField.createdAt], maxResults: 100).then((value) => print(value));
+  print(client.geo);
+  client.tweets.searchRecent(query: 'from:suhemparack -is:retweet', tweetFields: [TweetField.contextAnnotations, TweetField.createdAt], maxResults: 100).then((value) {
+    for (var tweet in value.data) {
+      print(tweet.text);
+    }
+  }
+  );
   // print(client);
   // final tweets = await twitter.tweets.searchRecent(
   //     query: '#ElonMusk',
