@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
+import 'dart:js_interop';
 import 'package:http/http.dart' as http;
 import 'package:twitter_api_v2/twitter_api_v2.dart';
 
@@ -38,10 +39,13 @@ final client = TwitterApi(
 
 // Future<TwitterResponse<List<TweetData>, TweetMeta>>
 Future<Null> getTweetByLocation(String location) async {
-  final sampleStream = await client.tweets.connectSampleStream();
-    await for (final response in sampleStream.stream.handleError(print)) {
-      print(response);
-    }
+  // var data = await client.tweets.countRecent(query: 'has:geo (from:NWSNHC OR from:NHC_Atlantic OR from:NWSHouston OR from:NWSSanAntonio OR from:USGS_TexasRain OR from:USGS_TexasFlood OR from:JeffLindner1)');
+  
+  // print(data);
+  // final sampleStream = await client.tweets.connectSampleStream();
+  //   await for (final response in sampleStream.stream.handleError(print)) {
+  //     print(response);
+  //   }
   // try {
   // await client.tweets.createFilteringRules(
   //     rules: [

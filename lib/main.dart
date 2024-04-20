@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    // getTweetByLocation('15');
+    getTweetByLocation('15');
 
     return MaterialApp(
       title: 'Flutter Demo',
