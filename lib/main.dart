@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'backend/x_api.dart';
-import 'frontend/x_map.dart';
+import 'frontend/x_map.dart' as map;
 
 void main() {
-  getTweetByLocation('15');
+  // getTweetByLocation('15');
   runApp(const MyApp());
 }
 
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    getTweetByLocation('15');
+    // getTweetByLocation('15');
 
     return MaterialApp(
       title: 'Flutter Demo',
@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyMapPage(),
+      home: map.MyApp(),
     );
   }
 }

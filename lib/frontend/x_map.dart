@@ -1,21 +1,36 @@
-import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
-import 'package:latlong2/latlong.dart' as ll;
+import 'package:latlong2/latlong.dart';
 
-
-class MyMapPage extends StatefulWidget {
-  const MyMapPage({Key? key}) : super(key: key);
-
+class MyApp extends StatelessWidget {
   @override
-  _MyMapPageState createState() => _MyMapPageState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Heatmap Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: MyHomePage(title: 'flutter_mapmap heat_map demo'),
+    );
+  }
 }
 
-class _MyMapPageState extends State<MyMapPage> {
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
   StreamController<void> _rebuildStream = StreamController.broadcast();
   List<WeightedLatLng> data = [];
   List<Map<double, MaterialColor>> gradients = [
@@ -25,6 +40,7 @@ class _MyMapPageState extends State<MyMapPage> {
 
   var index = 0;
 
+  @override
   initState() {
     _loadData();
     super.initState();
@@ -37,13 +53,13 @@ class _MyMapPageState extends State<MyMapPage> {
   }
 
   _loadData() async {
-    var str = await rootBundle.loadString('assets/initial_data.json');
+    var str = await rootBundle.loadString('../../assets/initial_data.json');
     List<dynamic> result = jsonDecode(str);
 
     setState(() {
       data = result
           .map((e) => e as List<dynamic>)
-          .map((e) => WeightedLatLng(ll.LatLng(e[0], e[1]), 1))
+          .map((e) => WeightedLatLng(LatLng(e[0], e[1]), 1))
           .toList();
     });
   }
@@ -59,13 +75,14 @@ class _MyMapPageState extends State<MyMapPage> {
 
   @override
   Widget build(BuildContext context) {
+    print("here");
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _rebuildStream.add(null);
     });
 
-    final map = FlutterMap(
-      options: MapOptions(
-          center: ll.LatLng(57.8827, -6.0400), zoom: 8.0),
+    final map =  FlutterMap(
+      options:  MapOptions(
+          center:  LatLng(57.8827, -6.0400), zoom: 8.0),
       children: [
         TileLayer(
             urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png"),
@@ -73,14 +90,14 @@ class _MyMapPageState extends State<MyMapPage> {
           HeatMapLayer(
             heatMapDataSource: InMemoryHeatMapDataSource(data: data),
             heatMapOptions: HeatMapOptions(
-                gradient: this.gradients[this.index], minOpacity: 0.1),
+                gradient: gradients[index], minOpacity: 0.1),
             reset: _rebuildStream.stream,
           )
       ],
     );
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Testing"),
+        title: Text(widget.title),
       ),
       backgroundColor: Colors.pink,
       body: Center(
