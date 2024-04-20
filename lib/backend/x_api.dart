@@ -4,12 +4,12 @@ import 'dart:io';
 
 final client = TwitterApi(
   bearerToken: 'AAAAAAAAAAAAAAAAAAAAALGRtQEAAAAAaQubTUgfpHVDhmEwq2rh3YLdUKc%3D6teN3XZzrYsEqOkluWS7e5s8Zl10nCfDj8ZmM9Nb92js7M52Y0', 
-  // oauthTokens: const OAuthTokens(
-  //     consumerKey: '1781133441830125568-82s3Jw0vijYnzgNQU94Q4JuBVjahhR',
-  //     consumerSecret: 'U1kNUjvalTu9I83uonP85YFkqX1co9NuBJcHGmjrJMNWr',
-  //     accessToken: 'VTNnTkM2WDNsdzE5MGVjLWQzVmM6MTpjaQ',
-  //     accessTokenSecret: 'TX0FwcajMXsGy4v7RXKDyybiTZGBO0XcItypfEjzfUjb8P7Nun',
-  //   ),
+  oauthTokens: const OAuthTokens(
+      consumerKey: '1781133441830125568-82s3Jw0vijYnzgNQU94Q4JuBVjahhR',
+      consumerSecret: 'U1kNUjvalTu9I83uonP85YFkqX1co9NuBJcHGmjrJMNWr',
+      accessToken: 'VTNnTkM2WDNsdzE5MGVjLWQzVmM6MTpjaQ',
+      accessTokenSecret: 'TX0FwcajMXsGy4v7RXKDyybiTZGBO0XcItypfEjzfUjb8P7Nun',
+    ),
   // retryConfig: RetryConfig(
   //     maxAttempts: 5,
   //     onExecute: (event) => print(
@@ -25,7 +25,7 @@ final client = TwitterApi(
 
 // Future<TwitterResponse<List<TweetData>, TweetMeta>>
 Future<Null> getTweetByLocation(String location) async {
-  print(client.geo);
+  print(client.users.lookupMe());
   client.tweets.searchRecent(query: 'from:suhemparack -is:retweet', tweetFields: [TweetField.contextAnnotations, TweetField.createdAt], maxResults: 100).then((value) {
     for (var tweet in value.data) {
       print(tweet.text);

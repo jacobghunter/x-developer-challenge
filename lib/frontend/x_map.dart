@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' as ll;
 
 void main() {
   runApp(MyApp());
@@ -62,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       data = result
           .map((e) => e as List<dynamic>)
-          .map((e) => WeightedLatLng(LatLng(e[0], e[1]), 1))
+          .map((e) => WeightedLatLng(ll.LatLng(e[0], e[1]), 1))
           .toList();
     });
   }
@@ -82,9 +82,9 @@ class _MyHomePageState extends State<MyHomePage> {
       _rebuildStream.add(null);
     });
 
-    final map = new FlutterMap(
-      options: new MapOptions(
-          initialCenter: new LatLng(57.8827, -6.0400), initialZoom: 8.0),
+    final map = FlutterMap(
+      options: MapOptions(
+          center: ll.LatLng(57.8827, -6.0400), zoom: 8.0),
       children: [
         TileLayer(
             urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png"),
