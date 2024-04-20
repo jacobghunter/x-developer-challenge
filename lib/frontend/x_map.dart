@@ -7,34 +7,15 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
 import 'package:latlong2/latlong.dart' as ll;
 
-void main() {
-  runApp(MyApp());
-}
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Heatmap Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: MyHomePage(title: 'flutter_mapmap heat_map demo'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+class MyMapPage extends StatefulWidget {
+  const MyMapPage({Key? key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _MyMapPageState createState() => _MyMapPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyMapPageState extends State<MyMapPage> {
   StreamController<void> _rebuildStream = StreamController.broadcast();
   List<WeightedLatLng> data = [];
   List<Map<double, MaterialColor>> gradients = [
@@ -99,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text("Testing"),
       ),
       backgroundColor: Colors.pink,
       body: Center(

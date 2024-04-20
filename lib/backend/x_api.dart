@@ -1,6 +1,22 @@
+import 'dart:convert';
 import 'package:twitter_api_v2/twitter_api_v2.dart';
 import 'dart:async';
 import 'dart:io';
+import 'package:http/http.dart' as http;
+
+const baseUrl = 'https://api.twitter.com/2/tweets/search/recent';
+const bearerToken = 'YOUR_BEARER_TOKEN';  // Replace with your actual token
+
+Future<http.Response> searchTweets(String query) async {
+  final url = Uri.parse('$baseUrl?q=$query&max_results=100');
+  final headers = {'Authorization': 'Bearer $bearerToken'};
+
+  return await http.get(url, headers: headers);
+}
+
+Future<void> main() async {
+  
+}
 
 final client = TwitterApi(
   bearerToken: 'AAAAAAAAAAAAAAAAAAAAALGRtQEAAAAAaQubTUgfpHVDhmEwq2rh3YLdUKc%3D6teN3XZzrYsEqOkluWS7e5s8Zl10nCfDj8ZmM9Nb92js7M52Y0', 
@@ -25,13 +41,24 @@ final client = TwitterApi(
 
 // Future<TwitterResponse<List<TweetData>, TweetMeta>>
 Future<Null> getTweetByLocation(String location) async {
-  print(client.users.lookupMe());
-  client.tweets.searchRecent(query: 'from:suhemparack -is:retweet', tweetFields: [TweetField.contextAnnotations, TweetField.createdAt], maxResults: 100).then((value) {
-    for (var tweet in value.data) {
-      print(tweet.text);
+  final response = await searchTweets('from:suhemparack -is:retweet');
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    for (var tweet in data['data']) {
+      print(tweet['text']);
     }
+  } else {
+    print('Error: ${response.statusCode}');
   }
-  );
+  
+  // print(client.users.lookupMe());
+  // client.tweets.searchRecent(query: 'from:suhemparack -is:retweet', tweetFields: [TweetField.contextAnnotations, TweetField.createdAt], maxResults: 100).then((value) {
+  //   for (var tweet in value.data) {
+  //     print(tweet.text);
+  //   }
+  // }
+  // );
   // print(client);
   // final tweets = await twitter.tweets.searchRecent(
   //     query: '#ElonMusk',

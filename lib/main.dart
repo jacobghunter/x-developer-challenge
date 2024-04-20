@@ -4,7 +4,7 @@ import 'frontend/x_map.dart';
 
 void main() {
   getTweetByLocation('15');
-  runApp(const MyMap());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyMapPage(),
     );
   }
 }
