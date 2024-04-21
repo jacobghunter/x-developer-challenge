@@ -6,7 +6,7 @@ import 'frontend/x_map_new.dart' as map;
 
 
 void main() {
-  getTweetByLocation('15');
+  // getTweetCountByLocation('15');
   runApp(const MyApp());
 }
 
@@ -24,7 +24,8 @@ class MyApp extends StatelessWidget {
           WebHorizontalScroll(),
       title: 'Flutter Demo',
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.black,
+        scaffoldBackgroundColor: Colors.white,
+        dialogBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
         useMaterial3: true,
       ),

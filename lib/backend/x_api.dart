@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:twitter_api_v2/twitter_api_v2.dart';
 import 'package:csv/csv.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 
 const String baseUrl = 'https://api.twitter.com/2/tweets/sample/stream';
 const bearerToken = 'AAAAAAAAAAAAAAAAAAAAALGRtQEAAAAAaQubTUgfpHVDhmEwq2rh3YLdUKc%3D6teN3XZzrYsEqOkluWS7e5s8Zl10nCfDj8ZmM9Nb92js7M52Y0';  // Replace with your actual token
@@ -38,12 +40,21 @@ final client = TwitterApi(
     );
 
 Future<TwitterResponse<List<TweetData>, TweetMeta>> getCityTweets(String location) async {
-  var data = await client.tweets.searchRecent(maxResults: 10, expansions: [TweetExpansion.authorId], userFields: [UserField.profileImageUrl],query: 'place:$location');
+  var data = await client.tweets.searchRecent(maxResults: 30, expansions: [TweetExpansion.authorId, TweetExpansion.attachmentsMediaKeys],userFields: [UserField.profileImageUrl],query: 'place:$location');  
   return data;
 }
 
+Future<TwitterResponse<List<TweetData>, TweetMeta>> getTweetByLocation(LatLng location) async {
+  var data = await client.tweets.searchRecent(maxResults: 30, expansions: [TweetExpansion.authorId, TweetExpansion.attachmentsMediaKeys],userFields: [UserField.profileImageUrl],query: 'point_radius:[${location.longitude} ${location.latitude} 25mi]');  
+  return data;
+}
+
+// Future<TwitterResponse<List<TweetData>, TweetMeta>> getTopStateTweets(String location) async {
+//   var data = await client.trends.lookupTrends(locationId: location);
+// }
+
 // Future<TwitterResponse<List<TweetData>, TweetMeta>>
-Future<int> getTweetByLocation(String location) async {
+Future<int> getTweetNumByLocation(String location) async {
 
   // var location = "San Francisco";
   var data = await client.tweets.countRecent(query: 'place:$location place_country:US');

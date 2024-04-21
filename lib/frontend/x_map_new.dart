@@ -1,5 +1,7 @@
 // import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 // import 'package:flutter_map/flutter_map.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:twitter_api_v2/twitter_api_v2.dart';
@@ -11,6 +13,10 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:twitter_oembed_api/twitter_oembed_api.dart';
 import 'package:flutter_html/flutter_html.dart' as html;
 import 'package:x_developer_competition/frontend/x_post_view.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
+import 'package:linked_text_splitter/linked_text_splitter.dart';
+
+// TODO: search tweets when clicking on map
 
 
 void main() => runApp(const MyApp());
@@ -25,7 +31,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late GoogleMapController mapController;
 
-  final LatLng _center = const LatLng(45.521563, -122.677433);
+  // final LatLng _center = const LatLng(45.521563, -122.677433);
 
   final int redBound = 500;
   final int yellowBound = 300;
@@ -35,11 +41,17 @@ class _MyAppState extends State<MyApp> {
   final sfCoords = [37.77, -122.42];
   final laCoords = [34.052235, -118.243683];
 
-  CameraPosition camera = CameraPosition(target: LatLng(0, 0));
+  late LatLng _target;
+
+  late CameraPosition camera;
 
   List<dynamic> cityData = [];
 
   int circleNum = 0;
+
+  bool tweetsView = false;
+
+  Widget tweets = Text("Error");
 
   Set<Circle> heatCircles = <Circle>{};
   Set<Marker> markers = <Marker>{};
@@ -70,40 +82,109 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  Widget makeTweetBox(TwitterResponse tweet, double tweetNum, int index) {
+  Widget makeTweetBox(TwitterResponse tweet, int index) {
     var data = tweet.data[index];
     var users = tweet.includes!.users;
+    var image;
+    try {
+      image = users![index].profileImageUrl!;
+    } catch (e) {
+      image = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.istockphoto.com%2Fillustrations%2Fmissing-file-icon&psig=AOvVaw1LmCy-kmlkiZTYf7AcYm4i&ust=1713806698382000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCMCX0c_p04UDFQAAAAAdAAAAABAE";
+    }
+
     return Padding(
       padding: const EdgeInsets.all(5),
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.4,
         width: MediaQuery.of(context).size.width * 0.3,
-        decoration: BoxDecoration(border: 
-                                  Border.all(color: Colors.black), 
-                                              color: Colors.white, 
-                                              borderRadius: BorderRadius.circular(10)),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-              Image.network(users![index].profileImageUrl!),
-              Text("From user: ${users[index].name}")
-              ]),
-            Text("Total users in that area: ${tweetNum.toString()}"),
-            Text(data.text),
-            TextButton(onPressed: () {
-              launchUrl(Uri.parse("https://twitter.com/${data.authorId}/status/${data.id}"));
-            }, child: const Text("Launch Tweet")),
-            // WebViewWidget(controller: controller)
-          ],
+        decoration: BoxDecoration(color: Colors.white.withOpacity(0.8), 
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 1,
+                                  blurRadius: 2,
+                                  offset: Offset(0, 3), // changes position of shadow
+                                )]),
+        child: Padding(
+          padding: EdgeInsets.all(10),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(50)),
+                        child: Image.network(users![index].profileImageUrl!))),
+                  ),
+                  Expanded(
+                    flex: 9,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 10),
+                          child: InkWell(
+                            onTap: () {
+                              launchUrl(Uri.parse("https://twitter.com/${users![index].username}"));
+                            },
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(users[index].name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold), textAlign: TextAlign.left)),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 10),
+                          child: InkWell(
+                            onTap: () {
+                              launchUrl(Uri.parse("https://twitter.com/${users![index].username}"));
+                            },
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text("@${users[index].username}", style: const TextStyle(fontSize: 14), textAlign: TextAlign.left,)),
+                          ),
+                        ),
+                      ],
+                      ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: RichText(text: TextSpan(
+                            children: LinkedTextSplitter.normal(
+                              linkStyle: const TextStyle(
+                              color: Colors.blue,
+                            ),
+                            onAtSignTap: (value) {
+                              launchUrl(Uri.parse("https://twitter.com/${value.substring(2)}"));
+                            },
+                            onLinkTap: (value) async {
+                              launchUrl(Uri.parse(value));
+                            },
+                            onHashTagTap: (value) {
+                              launchUrl(Uri.parse("https://twitter.com/hashtag/${value.substring(2)}"));
+                            }
+                            
+                          ).create(data.text, const TextStyle(color: Colors.black
+                    ))))
+                          // Text(data.text)
+                          ),
+                        const SizedBox(height: 10),
+                        TextButton(
+                          style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.lightBlueAccent)),
+                          onPressed: () {
+                          launchUrl(Uri.parse("https://twitter.com/${data.authorId}/status/${data.id}"));
+                        }, child: const Text("Launch Tweet", style: TextStyle(color: Colors.black))),
+            ],
           ),
+        ),
       ),
     );
 }
 
-  Circle constructCircle(LatLng location, double multiplier, Color color, double userNum, String cityName) {
+  Circle constructCircle(LatLng location, double multiplier, Color color, double userNum, List<String> cityInfo) {
     var circ = Circle(
       center: location,
       fillColor: color, 
@@ -111,31 +192,58 @@ class _MyAppState extends State<MyApp> {
       strokeWidth: 0,
       circleId: CircleId(circleNum.toString()),
       onTap: () {
-        getCityTweets(cityName).then((value) {
+        getCityTweets(cityInfo[0]).then((value) {
           List<Widget> tweetBoxes = [];
           for (int i = 0; i < value.data.length - 1; i++) {
-            tweetBoxes.add(makeTweetBox(value, userNum, i));
+            try {
+              tweetBoxes.add(makeTweetBox(value, i));
+            } catch (e) {}
           }
-          // setState(() => mapController = GoogleMapController());
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => PostView(tweetBoxes: tweetBoxes,)),
-          );
-          // showDialog(
-          //   context: context, builder: (_) => AlertDialog(
-          //     title: Container(color: Colors.white.withOpacity(0), 
-          //     child: Text(cityName, style: const TextStyle(fontSize: 40))), 
-          //     // titlePadding: EdgeInsets.zero,
-          //     contentPadding: EdgeInsets.zero, 
-          //     content: SizedBox(
-          //     width: MediaQuery.of(context).size.width * 0.9,
-          //     height: MediaQuery.of(context).size.height * 0.7,
-          //     child: ListView(
-          //         shrinkWrap: true,
-          //         scrollDirection: Axis.horizontal,
-          //         children: tweetBoxes)
-          //     )),
-          //   );    
+          // setState(() {
+          //   tweetsView = true;
+          // });
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => PostView(tweetBoxes: tweetBoxes, city: cityInfo, numPeople: userNum)),
+          // );
+          var vw = MediaQuery.of(context).size.width;
+          var vh = MediaQuery.of(context).size.height;
+          showDialog(
+            context: context, builder: (_) => Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                width: vw * 0.4,
+                child: PointerInterceptor(
+                  child: AlertDialog(
+                    surfaceTintColor: Colors.white,
+                    alignment: Alignment.centerLeft,
+                    // shape: RoundedRectangleBorder(borderRadius: ),
+                    title: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text("${cityInfo[0]}, ${cityInfo[1]} \n$userNum active users", style: TextStyle(color: Colors.black), textAlign: TextAlign.center,))), 
+                    titlePadding: EdgeInsets.zero,
+                    contentPadding: EdgeInsets.zero, 
+                    content: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    height: MediaQuery.of(context).size.height * 0.7,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 5),
+                      child: Container(
+                        decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(20))),
+                        child: ListView(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.vertical,
+                              children: tweetBoxes),
+                      ),
+                    ),
+                    )
+                    ),
+                ),
+              ),
+            ),
+            );    
         });
       }
       );
@@ -143,7 +251,7 @@ class _MyAppState extends State<MyApp> {
     return circ;
   }
 
-  Set<Circle> makeHeatCircles(double num, LatLng location, String name) {
+  Set<Circle> makeHeatCircles(double num, LatLng location, List<String> cityInfo) {
     Set<Circle> newCircles = <Circle>{};
     double numCircles = 60; 
     Color color = Colors.red;
@@ -156,7 +264,7 @@ class _MyAppState extends State<MyApp> {
 
     for (double i = 0; i <= numCircles; i++) {
       if (num < 1000) {
-        markers.add(Marker(markerId: MarkerId("$name"), position: location, 
+        markers.add(Marker(markerId: MarkerId("$cityInfo[0]"), position: location, 
         onTap: () {
           setState(() {
             double zoom = 10;
@@ -171,35 +279,16 @@ class _MyAppState extends State<MyApp> {
           });
         }));
       }
-      newCircles.add(constructCircle(location, 0.6 * (i/(numCircles*2))*num, color.withOpacity(0.1 * (i/numCircles)), num, name));
+      newCircles.add(constructCircle(location, 0.6 * (i/(numCircles*2))*num, color.withOpacity(0.1 * (i/numCircles)), num, cityInfo));
     }   
-
-    // if (num > redBound) {
-    //   for (double i = 0; i < 100; i++) {
-    //     // newCircles.add(constructCircle(location, 2 * (i * 0.1), Colors.green.withOpacity(opacity)));
-    //     // newCircles.add(constructCircle(location, 1 * (i * 0.05), Colors.yellow.withOpacity(opacity)));
-    //     newCircles.add(constructCircle(location, 0.5 * (i * 0.05), Colors.red.withOpacity(opacity)));
-    //   }
-      
-      
-    // } else if (num > yellowBound && num < redBound) {
-    //   for (double i = 0; i < 10; i++) {
-    //     newCircles.add(constructCircle(location, i * 0.5, Colors.yellow.withOpacity(opacity)));
-    //     newCircles.add(constructCircle(location, i * 0.5, Colors.green.withOpacity(opacity)));
-    //   }
-    // } else {
-    //   for (double i = 0; i < 10; i++) {
-    //     newCircles.add(constructCircle(location, i * 0.5, Colors.green.withOpacity(opacity)));
-    //   }
-    // }
 
     return newCircles;
   }
 
   Future<Set<Circle>> getCircles() async {
-    int sf = await getTweetByLocation("san francisco");
-    int la = await getTweetByLocation("Los Angeles");
-    int vegas = await getTweetByLocation("Los Angeles");
+    int sf = await getTweetNumByLocation("san francisco");
+    int la = await getTweetNumByLocation("Los Angeles");
+    int vegas = await getTweetNumByLocation("Los Angeles");
 
     Set<Circle> circles = {};
 
@@ -209,9 +298,9 @@ class _MyAppState extends State<MyApp> {
       if (total >= 10) {
         break;
       }
-      int tweetsInCity = await getTweetByLocation(city['city']);
+      int tweetsInCity = await getTweetNumByLocation(city['city']);
       print("${city['city']}: $tweetsInCity");
-      circles.addAll(makeHeatCircles(tweetsInCity.toDouble(), LatLng(city['latitude'], city['longitude']), city['city']));
+      circles.addAll(makeHeatCircles(tweetsInCity.toDouble(), LatLng(city['latitude'], city['longitude']), [city['city'], city['state']]));
       total += 1;
     }
 
@@ -220,9 +309,9 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    setState(() {
-      camera = CameraPosition(target: _center, zoom: 11.0);
-    });
+    _target = const LatLng(45.521563, -122.677433);
+    camera = const CameraPosition(target: LatLng(45.521563, -122.677433), zoom: 11.0);
+
     getJson().then((value) {
         setState(() {
           cityData = value;
@@ -231,7 +320,6 @@ class _MyAppState extends State<MyApp> {
           setState(() => heatCircles = value);
         });
     });
-    
     super.initState();
   }
 
@@ -243,6 +331,25 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    var vw = MediaQuery.of(context).size.width;
+    var vh = MediaQuery.of(context).size.height;
+
+    Widget body =
+      GoogleMap(
+        onCameraMove: (position) {
+          // print(position.target);
+          setState(() {
+            _target = position.target;
+            });
+        },
+              markers: markers,
+              circles: heatCircles,
+              onMapCreated: _onMapCreated,
+              initialCameraPosition: camera,
+              zoomControlsEnabled: false);
+
+    // TODO: try doing map and tweets to the side? if not separate page
+
     return MaterialApp(
       theme: ThemeData(
         useMaterial3: true,
@@ -260,11 +367,65 @@ class _MyAppState extends State<MyApp> {
           elevation: 2,
           ),
         body: GoogleMap(
-          markers: markers,
-          circles: heatCircles,
-          onMapCreated: _onMapCreated,
-          initialCameraPosition: camera,
-        ),
+            onCameraMove: (position) {
+              // print(position.target);
+              setState(() {
+                _target = position.target;
+                });
+            },
+            onTap: (location) {
+              getTweetByLocation(location).then((value) {
+                if (value.data.isNotEmpty) {
+              List<Widget> tweetBoxes = [];
+              for (int i = 0; i < value.data.length - 1; i++) {
+                try {
+                  tweetBoxes.add(makeTweetBox(value, i));
+                } catch (e) {}
+              }
+              var vw = MediaQuery.of(context).size.width;
+              var vh = MediaQuery.of(context).size.height;
+              showDialog(
+                context: context, builder: (_) => Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    width: vw * 0.4,
+                    child: PointerInterceptor(
+                      child: AlertDialog(
+                        surfaceTintColor: Colors.white,
+                        alignment: Alignment.centerLeft,
+                        // shape: RoundedRectangleBorder(borderRadius: ),
+                        title: const Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text("local tweets within 25 miles of your click", style: TextStyle(color: Colors.black), textAlign: TextAlign.center,))), 
+                        titlePadding: EdgeInsets.zero,
+                        contentPadding: EdgeInsets.zero, 
+                        content: SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        height: MediaQuery.of(context).size.height * 0.7,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 5),
+                          child: Container(
+                            decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(20))),
+                            child: ListView(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.vertical,
+                                  children: tweetBoxes),
+                          ),
+                        ),
+                        )
+                        ),
+                    ),
+                  ),
+                ),
+                );}});
+            },
+                  markers: markers,
+                  circles: heatCircles,
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition: camera,
+                  zoomControlsEnabled: false),
       ),
     );
   }
