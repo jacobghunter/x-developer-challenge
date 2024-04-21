@@ -48,6 +48,8 @@ dependencies:
   flutter_widget_from_html: ^0.14.11
   pointer_interceptor: ^0.10.1
   linked_text_splitter: ^0.0.3
+  location: ^6.0.1
+  dart_openai: ^3.0.0
 
 dev_dependencies:
   flutter_test:
