@@ -90,6 +90,14 @@ class _MyHomePageState extends State<MyHomePage> {
         // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
         // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [TextButton(child: Text("joe page :)"), onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+            // WishList(listOfItemIds: data_store.user.wishlist)
+            print("here");
+            return Text("here");
+          }
+                      ));
+        })],
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),

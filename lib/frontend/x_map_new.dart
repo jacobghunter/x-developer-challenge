@@ -21,9 +21,9 @@ class _MyAppState extends State<MyApp> {
   final int yellowBound = 300;
   final int greenBound = 100;
 
-  final vegas = [36.1716, -115.1391];
-  final sf = [37.77, -122.42];
-  final la = [34.052235, -118.243683];
+  final vegasCoords = [36.1716, -115.1391];
+  final sfCoords = [37.77, -122.42];
+  final laCoords = [34.052235, -118.243683];
 
   int circleNum = 0;
 
@@ -79,7 +79,12 @@ class _MyAppState extends State<MyApp> {
   Future<Set<Circle>> getCircles() async {
     int sf = await getTweetByLocation("san francisco");
     int la = await getTweetByLocation("Los Angeles");
-    return makeHeatCircles(newCircleNum.toDouble(), LatLng(45.521563, -122.677433));;
+    int vegas = await getTweetByLocation("Los Angeles");
+    
+    var first = makeHeatCircles(sf.toDouble(), LatLng(sfCoords[0], sfCoords[1]));
+    first.addAll(makeHeatCircles(la.toDouble(), LatLng(laCoords[0], laCoords[1])));
+    first.addAll(makeHeatCircles(vegas.toDouble(), LatLng(vegasCoords[0], vegasCoords[1])));
+    return first;
   }
 
   @override
@@ -106,6 +111,13 @@ class _MyAppState extends State<MyApp> {
       ),
       home: Scaffold(
         appBar: AppBar(
+          actions: [TextButton(child: Text("joe page :)"), onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+            // WishList(listOfItemIds: data_store.user.wishlist)
+            return Text("here");
+          }
+                      ));
+        })],
           title: const Text('Maps Sample App'),
           elevation: 2,
         ),
