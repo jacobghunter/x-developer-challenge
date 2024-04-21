@@ -2,11 +2,14 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 import 'dart:js_interop';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:twitter_api_v2/twitter_api_v2.dart';
+import 'package:csv/csv.dart';
 
 const String baseUrl = 'https://api.twitter.com/2/tweets/sample/stream';
 const bearerToken = 'AAAAAAAAAAAAAAAAAAAAALGRtQEAAAAAaQubTUgfpHVDhmEwq2rh3YLdUKc%3D6teN3XZzrYsEqOkluWS7e5s8Zl10nCfDj8ZmM9Nb92js7M52Y0';  // Replace with your actual token
+const joeToken = 'AAAAAAAAAAAAAAAAAAAAAKuQtQEAAAAAY5W1SmHNhxXbzE8ELDpQUrAN2vI%3DH8uqDBss0h5nJELS2ydJgs80ONpuSqdp0xbEbuKlDNYYLuQaUG';
 
 Future<http.Response> searchTweets(String query) async {
   final headers = {"Access-Control-Allow-Origin": "*"};
@@ -15,7 +18,7 @@ Future<http.Response> searchTweets(String query) async {
 }
 
 final client = TwitterApi(
-  bearerToken: 'AAAAAAAAAAAAAAAAAAAAALGRtQEAAAAAaQubTUgfpHVDhmEwq2rh3YLdUKc%3D6teN3XZzrYsEqOkluWS7e5s8Zl10nCfDj8ZmM9Nb92js7M52Y0', 
+  bearerToken: bearerToken, 
   // oauthTokens: const OAuthTokens(
   //     consumerKey: '1781133441830125568-82s3Jw0vijYnzgNQU94Q4JuBVjahhR',
   //     consumerSecret: 'U1kNUjvalTu9I83uonP85YFkqX1co9NuBJcHGmjrJMNWr',
@@ -34,12 +37,16 @@ final client = TwitterApi(
   //   timeout: const Duration(seconds: 20)
     );
 
+Future<List<TweetData>> getCityTweet(String location) async {
+  var data = await client.tweets.searchRecent(maxResults: 10, expansions: [TweetExpansion.authorId],query: 'place:$location');
+  // print(data.data);
+  return data.data;
+}
 
 // Future<TwitterResponse<List<TweetData>, TweetMeta>>
 Future<int> getTweetByLocation(String location) async {
 
-  var location = "San Francisco";
-        // let urlString = "https://api.twitter.com/2/tweets/counts/recent?query=place:$location place_country:US"
+  // var location = "San Francisco";
   var data = await client.tweets.countRecent(query: 'place:$location place_country:US');
   
   // print(data.data);
@@ -51,6 +58,11 @@ Future<int> getTweetByLocation(String location) async {
   // getFilterStream();
 
   return getTotalTweets(data.data);
+}
+
+getJson() async {
+  final jsonString = await rootBundle.loadString('../../assets/cities.json');
+  return json.decode(jsonString);
 }
 
 void getFilterStream() async {
