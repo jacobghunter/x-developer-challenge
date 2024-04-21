@@ -31,6 +31,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  var vegas = (36.1716, 115.1391);
   StreamController<void> _rebuildStream = StreamController.broadcast();
   List<WeightedLatLng> data = [];
   List<Map<double, MaterialColor>> gradients = [

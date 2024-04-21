@@ -5,7 +5,7 @@ import 'frontend/x_map_new.dart' as map;
 
 
 void main() {
-  // getTweetByLocation('15');
+  getTweetByLocation('15');
   runApp(const MyApp());
 }
 
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    getTweetByLocation('15');
+    // getTweetByLocation('15');
 
     return MaterialApp(
       title: 'Flutter Demo',
