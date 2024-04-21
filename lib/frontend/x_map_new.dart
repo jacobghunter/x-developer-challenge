@@ -1,17 +1,16 @@
-import 'dart:html';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+// import 'package:flutter_map/flutter_map.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:twitter_api_v2/twitter_api_v2.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+// import 'package:url_launcher/url_launcher_string.dart';
 import 'package:x_developer_competition/backend/x_api.dart';
-import 'dart:math';
+// import 'dart:math';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+// import 'package:webview_flutter/webview_flutter.dart';
 import 'package:twitter_oembed_api/twitter_oembed_api.dart';
 import 'package:flutter_html/flutter_html.dart' as html;
+import 'package:x_developer_competition/frontend/x_post_view.dart';
 
 
 void main() => runApp(const MyApp());
@@ -71,20 +70,36 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  Widget makeTweetBox(TweetData tweet, double tweetNum) {
-    // getTweetEmbed(tweet);
-    // WebViewController controller = WebViewController.fromPlatformCreationParams(PlatformWebViewControllerCreationParams());
-    return Container(
-      child: Column(
-        children: [
-          Text("Total users in that area: ${tweetNum.toString()}"),
-          Text(tweet.text),
-          TextButton(onPressed: () {
-            launchUrl(Uri.parse("https://twitter.com/${tweet.authorId}/status/${tweet.id}"));
-          }, child: const Text("Launch Tweet")),
-          // WebViewWidget(controller: controller)
-        ],
-        ),
+  Widget makeTweetBox(TwitterResponse tweet, double tweetNum, int index) {
+    var data = tweet.data[index];
+    var users = tweet.includes!.users;
+    return Padding(
+      padding: const EdgeInsets.all(5),
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.4,
+        width: MediaQuery.of(context).size.width * 0.3,
+        decoration: BoxDecoration(border: 
+                                  Border.all(color: Colors.black), 
+                                              color: Colors.white, 
+                                              borderRadius: BorderRadius.circular(10)),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+              Image.network(users![index].profileImageUrl!),
+              Text("From user: ${users[index].name}")
+              ]),
+            Text("Total users in that area: ${tweetNum.toString()}"),
+            Text(data.text),
+            TextButton(onPressed: () {
+              launchUrl(Uri.parse("https://twitter.com/${data.authorId}/status/${data.id}"));
+            }, child: const Text("Launch Tweet")),
+            // WebViewWidget(controller: controller)
+          ],
+          ),
+      ),
     );
 }
 
@@ -96,11 +111,32 @@ class _MyAppState extends State<MyApp> {
       strokeWidth: 0,
       circleId: CircleId(circleNum.toString()),
       onTap: () {
-        getCityTweet(cityName).then((value) {
-          showDialog(context: context, builder: (_) => CupertinoAlertDialog(title: Text(cityName), content: makeTweetBox(value[Random().nextInt(10)], userNum)));    
+        getCityTweets(cityName).then((value) {
+          List<Widget> tweetBoxes = [];
+          for (int i = 0; i < value.data.length - 1; i++) {
+            tweetBoxes.add(makeTweetBox(value, userNum, i));
+          }
+          // setState(() => mapController = GoogleMapController());
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PostView(tweetBoxes: tweetBoxes,)),
+          );
+          // showDialog(
+          //   context: context, builder: (_) => AlertDialog(
+          //     title: Container(color: Colors.white.withOpacity(0), 
+          //     child: Text(cityName, style: const TextStyle(fontSize: 40))), 
+          //     // titlePadding: EdgeInsets.zero,
+          //     contentPadding: EdgeInsets.zero, 
+          //     content: SizedBox(
+          //     width: MediaQuery.of(context).size.width * 0.9,
+          //     height: MediaQuery.of(context).size.height * 0.7,
+          //     child: ListView(
+          //         shrinkWrap: true,
+          //         scrollDirection: Axis.horizontal,
+          //         children: tweetBoxes)
+          //     )),
+          //   );    
         });
-        
-        
       }
       );
       circleNum += 1;

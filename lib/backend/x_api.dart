@@ -37,10 +37,9 @@ final client = TwitterApi(
   //   timeout: const Duration(seconds: 20)
     );
 
-Future<List<TweetData>> getCityTweet(String location) async {
-  var data = await client.tweets.searchRecent(maxResults: 10, expansions: [TweetExpansion.authorId],query: 'place:$location');
-  // print(data.data);
-  return data.data;
+Future<TwitterResponse<List<TweetData>, TweetMeta>> getCityTweets(String location) async {
+  var data = await client.tweets.searchRecent(maxResults: 10, expansions: [TweetExpansion.authorId], userFields: [UserField.profileImageUrl],query: 'place:$location');
+  return data;
 }
 
 // Future<TwitterResponse<List<TweetData>, TweetMeta>>
