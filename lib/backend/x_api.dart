@@ -7,8 +7,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:dart_openai/dart_openai.dart';
 
 const String baseUrl = 'https://api.twitter.com/2/tweets/sample/stream';
-const bearerToken = 'AAAAAAAAAAAAAAAAAAAAALGRtQEAAAAAaQubTUgfpHVDhmEwq2rh3YLdUKc%3D6teN3XZzrYsEqOkluWS7e5s8Zl10nCfDj8ZmM9Nb92js7M52Y0';  // Replace with your actual token
-const joeToken = 'AAAAAAAAAAAAAAAAAAAAAKuQtQEAAAAAY5W1SmHNhxXbzE8ELDpQUrAN2vI%3DH8uqDBss0h5nJELS2ydJgs80ONpuSqdp0xbEbuKlDNYYLuQaUG';
+const bearerToken = '123';  // Replace with your actual token
+const joeToken = '1234';
 
 final client = TwitterApi(
   bearerToken: joeToken, 
