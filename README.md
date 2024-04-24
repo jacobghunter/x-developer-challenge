@@ -1,16 +1,9 @@
-# x_developer_competition
+# X Heatmap
 
-A new Flutter project.
+A project done in ~24 hours for the X developer challenge in 2024.
 
-## Getting Started
+Utilized the X api and google maps api to create a heatmap of tweets and pull up recent tweets in that area when clicked on.
 
-This project is a starting point for a Flutter application.
+Since we lost our API access after the event, this project is no longer functional.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/qcVoB7GzodE/0.jpg)](https://youtu.be/qcVoB7GzodE)
